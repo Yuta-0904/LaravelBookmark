@@ -75,9 +75,3 @@
 | DATABASE | laravel-bookmark | 
 | USERNAME | root             | 
 | PASSWORD | secret           | 
-
-## 以下のアプリがおすすめです。
-
-- Sequel Pro https://www.sequelpro.com/
-- Table Plus https://tableplus.com/
-- MySQL Workbench https://www.mysql.com/jp/products/workbench/
