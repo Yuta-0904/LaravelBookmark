@@ -24,7 +24,10 @@ use Illuminate\View\View;
 
 use App\Bookmark\UseCase\ShowBookmarkListPageUseCase;
 use App\Bookmark\UseCase\CreateBookmarkUseCase;
+use App\Bookmark\UseCase\UpdateBookmarkUseCase;
+use App\Bookmark\UseCase\DeleteBookmarkUseCase;
 use App\Http\Requests\CreateBookmarkRequest; 
+use App\Http\Requests\UpdateBookmarkRequest;
 use App\Lib\LinkPreview\MockLinkPreview;
 
 class BookmarkController extends Controller
@@ -181,33 +184,13 @@ class BookmarkController extends Controller
      * @return Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws ValidationException
      */
-    public function update(Request $request, int $id)
+    public function update(UpdateBookmarkRequest $request, int $id,UpdateBookmarkUseCase $useCase)
     {
-        if (Auth::guest()) {
-            // @note ここの処理はユーザープロフィールでも使われている
-            return redirect('/login');
-        }
-
-        Validator::make($request->all(), [
-            'comment' => 'required|string|min:10|max:1000',
-            'category' => 'required|integer|exists:bookmark_categories,id',
-        ])->validate();
-
-        $model = Bookmark::query()->findOrFail($id);
-
-        if ($model->can_not_delete_or_edit) {
-            throw ValidationException::withMessages([
-                'can_edit' => 'ブックマーク後24時間経過したものは編集できません'
-            ]);
-        }
-
-        if ($model->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $model->category_id = $request->category;
-        $model->comment = $request->comment;
-        $model->save();
+        $useCase->handle(
+            $id,
+            $request->comment,
+            $request->category
+        );
 
         // 成功時は一覧ページへ
         return redirect('/bookmarks', 302);
@@ -222,26 +205,11 @@ class BookmarkController extends Controller
      * @return Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws ValidationException
      */
-    public function delete(int $id)
+    public function delete(int $id,DeleteBookmarkUseCase $useCase)
     {
-        if (Auth::guest()) {
-            // @note ここの処理はユーザープロフィールでも使われている
-            return redirect('/login');
-        }
-
-        $model = Bookmark::query()->findOrFail($id);
-
-        if ($model->can_not_delete_or_edit) {
-            throw ValidationException::withMessages([
-                'can_delete' => 'ブックマーク後24時間経過したものは削除できません'
-            ]);
-        }
-
-        if ($model->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $model->delete();
+        $useCase->handle(
+            $id
+        );
 
         // 暫定的に成功時はプロフィールページへ
         return redirect('/user/profile', 302);

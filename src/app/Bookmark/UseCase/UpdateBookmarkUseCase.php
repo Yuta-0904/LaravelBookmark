@@ -2,21 +2,14 @@
 
 namespace App\Bookmark\UseCase;
 
-use App\Lib\LinkPreview\LinkPreviewInterface;
 use App\Models\Bookmark;
 use Dusterio\LinkPreview\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-final class CreateBookmarkUseCase
+final class UpdateBookmarkUseCase
 {
-    private LinkPreviewInterface $linkPreview;
- 
-    public function __construct(LinkPreviewInterface $linkPreview)
-    {
-        $this->linkPreview = $linkPreview;
-    }
     /**
      * ブックマーク作成処理
      *
@@ -33,26 +26,22 @@ final class CreateBookmarkUseCase
      * @param string $comment
      * @throws ValidationException
      */
-    public function handle(string $url, int $category, string $comment): Bookmark
+    public function handle(int $id, string $comment,string $category)
     {
-        try {
-            $preview = $this->linkPreview->get($url);
+        $model = Bookmark::query()->findOrFail($id);
 
-            $model = new Bookmark();
-            $model->url = $url;
-            $model->category_id = $category;
-            $model->user_id = Auth::id();
-            $model->comment = $comment;
-            $model->page_title = $preview->title;
-            $model->page_description = $preview->description;
-            $model->page_thumbnail_url = $preview->cover;
-            $model->save();
-            return $model;
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
+        if ($model->can_not_delete_or_edit) {
             throw ValidationException::withMessages([
-                'url' => 'URLが存在しない等の理由で読み込めませんでした。変更して再度投稿してください'
+                'can_edit' => 'ブックマーク後24時間経過したものは編集できません'
             ]);
         }
+
+        if ($model->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $model->category_id = $category;
+        $model->comment = $comment;
+        $model->save();
     }
 }
