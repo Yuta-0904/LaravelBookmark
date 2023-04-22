@@ -30,6 +30,7 @@ class UserController extends \App\Http\Controllers\Controller
 
         $bookmarks = Bookmark::query()->where('user_id', '=', $user->id)->get();
 
+        // マイページ表示
         return view('page.profile.index', [
             'user' => $user,
             'bookmarks' => $bookmarks

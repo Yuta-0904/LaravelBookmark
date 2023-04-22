@@ -25,6 +25,8 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         SEOTools::setTitle('ログイン');
+
+        //ログインページ表示
         return view('auth.login');
     }
 

@@ -45,7 +45,7 @@ services:
     image: node:14.2-buster
     working_dir: "/opt/laravel-bookmark"
     command: /bin/bash -c 'npm i && npm rebuild node-sass && npm run watch'
-    volumes:
+    volumes: #DB永続化
       - ./src:/opt/laravel-bookmark
     environment:
       TZ: Asia/Tokyo

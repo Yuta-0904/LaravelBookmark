@@ -28,6 +28,8 @@ class RegisterController extends Controller
     public function showRegistrationForm()
     {
         SEOTools::setTitle('新規登録');
+
+        //新規登録ページ表示
         return view('auth.register');
     }
 

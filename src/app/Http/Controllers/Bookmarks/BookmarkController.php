@@ -51,6 +51,7 @@ class BookmarkController extends Controller
      */
     public function list(Request $request, ShowBookmarkListPageUseCase $useCase)
     {
+        //ブックマーク一覧ページ表示
         return view('page.bookmark_list.index', [
             'h1' => 'ブックマーク一覧',
         ] + $useCase->handle());
@@ -89,6 +90,7 @@ class BookmarkController extends Controller
 
         $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->take(10)->get();
 
+        //カテゴリ一覧ページ表示
         return view('page.bookmark_list.index', [
             'h1' => "{$category->display_name}のブックマーク一覧",
             'bookmarks' => $bookmarks,
@@ -111,6 +113,7 @@ class BookmarkController extends Controller
 
         $master_categories = BookmarkCategory::query()->oldest('id')->get();
 
+        //ブックマーク作成ページ表示
         return view('page.bookmark_create.index', [
             'master_categories' => $master_categories,
         ]);
@@ -164,8 +167,10 @@ class BookmarkController extends Controller
             abort(403);
         }
 
-        $master_categories = BookmarkCategory::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->orderBy('id')->take(10)->get();
+        $master_categories = BookmarkCategory::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')
+                            ->orderBy('id')->take(10)->get();
 
+        //ブックマーク編集ページ表示
         return view('page.bookmark_edit.index', [
             'user' => Auth::user(),
             'bookmark' => $bookmark,

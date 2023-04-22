@@ -20,6 +20,7 @@ class EloquentModelBookmarkTest extends TestCase
             'category_id' => $category->id,
         ]);
 
+        
         $this->assertDatabaseHas((new Bookmark())->getTable(), [
             'user_id' => $user->id,
             'category_id' => $category->id,
