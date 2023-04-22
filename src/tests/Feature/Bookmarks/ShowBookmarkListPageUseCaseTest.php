@@ -41,25 +41,25 @@ class ShowBookmarkListPageUseCaseTest extends TestCase
          * ・トップカテゴリーについて：10件取得できていること、内容が投稿数順になっていること
          * ・トップユーザーについて：10人取得できていること、内容が投稿数順になっていること
          */
-        self::assertCount(10, $response['bookmarks']);
+        $this->assertCount(10, $response['bookmarks']);
 
         // 以下が追加した内容です！
-        self::assertCount(10, $response['top_categories']);
-        self::assertCount(10, $response['top_users']);
+        $this->assertCount(10, $response['top_categories']);
+        $this->assertCount(10, $response['top_users']);
 
         // bookmarksの中身を軽くチェック。IDが大きい順に格納されていればOK
         for ($i = 100; $i > 90; $i--) {
-            self::assertSame($i, $response['bookmarks'][100 - $i]->id);
+            $this->assertSame($i, $response['bookmarks'][100 - $i]->id);
         }
 
         // top_categoriesの中身を軽くチェック。IDが小さい順に格納されていればOK
         for ($i = 1; $i < 10; $i++) {
-            self::assertSame($i, $response['top_categories'][$i - 1]->id);
+            $this->assertSame($i, $response['top_categories'][$i - 1]->id);
         }
 
         // top_usersの中身を軽くチェック。IDが小さい順に格納されていればOK
         for ($i = 1; $i < 10; $i++) {
-            self::assertSame($i, $response['top_users'][$i - 1]->id);
+            $this->assertSame($i, $response['top_users'][$i - 1]->id);
         }
     }
 
