@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bookmark\UseCase;
+namespace App\UseCase\Bookmark;
 
 use App\Models\Bookmark;
 use App\Interfaces\BookMarkInterface;

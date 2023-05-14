@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Bookmarks;
 
-use App\Bookmark\UseCase\DeleteBookmarkUseCase;
-use App\Bookmark\UseCase\CreateBookmarkUseCase;
+use App\UseCase\Bookmark\DeleteBookmarkUseCase;
+use App\UseCase\Bookmark\CreateBookmarkUseCase;
 use App\Models\Bookmark;
 use App\Models\BookmarkCategory;
 use App\Models\User;

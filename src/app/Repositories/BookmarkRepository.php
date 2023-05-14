@@ -24,6 +24,12 @@ class BookmarkRepository implements BookMarkInterface
         return Bookmark::with(['category', 'user'])->where('category_id', '=', $category_id)->latest('id')->paginate(10);
     }
 
+    // ユーザ自身が登録したブックマークの取得
+    public function getBookMarkListsWithUser($user_id):object
+    {
+        return Bookmark::query()->where('user_id', '=', $user_id)->get();
+    }
+
     // 指定のブックマーク取得
     public function findOrFail(int $bookmark_id):Bookmark
     {

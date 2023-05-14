@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Bookmarks;
 
-use App\Bookmark\UseCase\CreateBookmarkUseCase;
+use App\UseCase\Bookmark\CreateBookmarkUseCase;
 use App\Lib\LinkPreview\LinkPreview;
 use App\Lib\LinkPreview\LinkPreviewInterface;
 use App\Lib\LinkPreview\MockLinkPreview;

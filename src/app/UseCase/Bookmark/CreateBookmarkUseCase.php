@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Bookmark\UseCase;
+namespace App\UseCase\Bookmark;
 
 use App\Lib\LinkPreview\LinkPreviewInterface;
 use App\Models\Bookmark;

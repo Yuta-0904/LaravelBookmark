@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Bookmark\UseCase;
+namespace App\UseCase\Bookmark;
 
 use App\Models\Bookmark;
 use App\Models\BookmarkCategory;
 use App\Models\User;
 use App\Interfaces\BookmarkCategoryInterface;
 use App\Interfaces\BookMarkInterface;
+use App\Interfaces\UserInterface;
 use Illuminate\Support\Facades\Auth;
 use Artesaos\SEOTools\Facades\SEOTools;
 
@@ -15,11 +16,13 @@ final class ShowBookmarkListPageUseCase
 
     private BookmarkCategoryInterface $bookmarkCategoryRepository;
     private BookMarkInterface $bookMarkRepository;
+    private UserInterface $userRepository;
  
-    public function __construct(BookmarkCategoryInterface $bookmarkCategoryRepository,BookMarkInterface $bookMarkRepository)
+    public function __construct(BookmarkCategoryInterface $bookmarkCategoryRepository,BookMarkInterface $bookMarkRepository,UserInterface $userRepository)
     {
         $this->bookmarkCategoryRepository = $bookmarkCategoryRepository;
         $this->bookMarkRepository = $bookMarkRepository;
+        $this->userRepository = $userRepository;
     }
 
 
@@ -52,7 +55,7 @@ final class ShowBookmarkListPageUseCase
         // Descriptionの中に人気のカテゴリTOP5を含めるという要件
         SEOTools::setDescription("技術分野に特化したブックマーク一覧です。みんなが投稿した技術分野のブックマークが投稿順に並んでいます。{$top_categories->pluck('display_name')->slice(0, 5)->join('、')}など、気になる分野のブックマークに絞って調べることもできます");
 
-        $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->orderBy('id')->take(10)->get();
+        $top_users = $this->userRepository->getUserLists();
 
         return [
             'bookmarks' => $bookmarks,
@@ -114,7 +117,7 @@ final class ShowBookmarkListPageUseCase
         // 自身のページのカテゴリを表示しても意味がないのでそれ以外のカテゴリで多い順に表示する
         $top_categories = $this->bookmarkCategoryRepository->getBookmarkCategoryWithout($category_id);
 
-        $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->take(10)->get();
+        $top_users = $this->userRepository->getUserLists();
 
         //カテゴリ一覧ページ表示
         return [

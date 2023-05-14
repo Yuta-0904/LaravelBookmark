@@ -22,10 +22,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-use App\Bookmark\UseCase\ShowBookmarkListPageUseCase;
-use App\Bookmark\UseCase\CreateBookmarkUseCase;
-use App\Bookmark\UseCase\UpdateBookmarkUseCase;
-use App\Bookmark\UseCase\DeleteBookmarkUseCase;
+use App\UseCase\Bookmark\ShowBookmarkListPageUseCase;
+use App\UseCase\Bookmark\CreateBookmarkUseCase;
+use App\UseCase\Bookmark\UpdateBookmarkUseCase;
+use App\UseCase\Bookmark\DeleteBookmarkUseCase;
 use App\Http\Requests\CreateBookmarkRequest; 
 use App\Http\Requests\UpdateBookmarkRequest;
 use App\Lib\LinkPreview\MockLinkPreview;

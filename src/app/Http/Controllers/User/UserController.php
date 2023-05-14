@@ -8,6 +8,7 @@ use App\Models\Bookmark;
 use App\Models\User;
 use Artesaos\SEOTools\Facades\SEOTools;
 use Illuminate\Support\Facades\Auth;
+use App\UseCase\User\ShowUserPageUseCase;
 
 class UserController extends \App\Http\Controllers\Controller
 {
@@ -17,19 +18,9 @@ class UserController extends \App\Http\Controllers\Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
-    public function showProfile()
-    {
-        /** @var User $user */
-        $user = Auth::user();
-
-        SEOTools::setTitle("{$user->name}さんのプロフィール");
-
-        $bookmarks = Bookmark::query()->where('user_id', '=', $user->id)->get();
-
+    public function showProfile(ShowUserPageUseCase $useCase)
+    {  
         // マイページ表示
-        return view('page.profile.index', [
-            'user' => $user,
-            'bookmarks' => $bookmarks
-        ]);
+        return view('page.profile.index',$useCase->handle(Auth::user()));
     }
 }

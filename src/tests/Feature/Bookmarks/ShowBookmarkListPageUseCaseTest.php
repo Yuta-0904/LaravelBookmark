@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Bookmarks;
 
-use App\Bookmark\UseCase\ShowBookmarkListPageUseCase;
+use App\UseCase\Bookmark\ShowBookmarkListPageUseCase;
 use Artesaos\SEOTools\Facades\SEOTools;
 use Tests\TestCase;
 
