@@ -73,5 +73,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 ## Test Command
 docker-compose exec app vendor/bin/phpunit tests/Feature/Bookmarks/ShowBookmarkListPageUseCaseTest.php
 docker-compose exec app vendor/bin/phpunit tests/Feature/Bookmarks/CreateBookmarkUseCaseTest.php
+docker-compose exec app vendor/bin/phpunit tests/Feature/Bookmarks/UpdateBookmarkTest
+docker-compose exec app vendor/bin/phpunit tests/Feature/Bookmarks/DeleteBookmarkUseCaseTest
 
 

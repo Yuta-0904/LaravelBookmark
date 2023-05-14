@@ -15,8 +15,6 @@ use Illuminate\Validation\ValidationException;
 
 class DeleteBookmarkUseCaseTest extends TestCase
 {
-    private DeleteBookmarkUseCase $useCaseDelete;
-    private CreateBookmarkUseCase $useCaseCreate;
 
     protected function setUp(): void
     {
@@ -35,7 +33,7 @@ class DeleteBookmarkUseCaseTest extends TestCase
         $comment = 'テスト用のコメント';
 
         // ログインしないと失敗するので強制ログイン
-        $testUser = User::query()->first();
+        $testUser = User::query()->find(1);
         Auth::loginUsingId($testUser->id);
 
         // テストデータの作成
@@ -43,7 +41,6 @@ class DeleteBookmarkUseCaseTest extends TestCase
         
         // テストデータの削除
         $this->useCaseDelete->handle($createData->id);
-
         Auth::logout();
 
         // データベースに作成したテストデータが削除されているかチェックする

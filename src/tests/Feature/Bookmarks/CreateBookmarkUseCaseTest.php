@@ -19,7 +19,6 @@ class CreateBookmarkUseCaseTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->app->bind(LinkPreviewInterface::class, MockLinkPreview::class);
         $this->useCase = $this->app->make(CreateBookmarkUseCase::class);
     }
@@ -37,6 +36,12 @@ class CreateBookmarkUseCaseTest extends TestCase
 
         $this->useCase->handle($url, $category, $comment);
 
+        $response = $this->post('/bookmarks', [
+            'url' => $url,
+            'category' => $category,
+            'comment' => $comment,
+        ]);
+        $response->assertStatus(302);
         Auth::logout();
 
         // データベースに保存された値を期待したとおりかどうかチェックする
