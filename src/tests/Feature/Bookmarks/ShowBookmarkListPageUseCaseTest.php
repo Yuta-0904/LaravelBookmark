@@ -8,8 +8,6 @@ use Tests\TestCase;
 
 class ShowBookmarkListPageUseCaseTest extends TestCase
 {
-    private ShowBookmarkListPageUseCase $useCase;
-
     /**
      * setUpメソッドは、各テストケース(testXXXという名前のメソッド)が
      * 実行される前に毎回実行されます。
@@ -19,7 +17,7 @@ class ShowBookmarkListPageUseCaseTest extends TestCase
     {
         parent::setUp();
 
-        $this->useCase = new ShowBookmarkListPageUseCase();
+        $this->useCase = $this->app->make(ShowBookmarkListPageUseCase::class);
     }
 
   
