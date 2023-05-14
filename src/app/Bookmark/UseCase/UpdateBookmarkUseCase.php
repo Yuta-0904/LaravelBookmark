@@ -3,13 +3,24 @@
 namespace App\Bookmark\UseCase;
 
 use App\Models\Bookmark;
-use Dusterio\LinkPreview\Client;
+use App\Interfaces\BookMarkInterface;
+use App\Interfaces\BookmarkCategoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 final class UpdateBookmarkUseCase
 {
+
+    private BookMarkInterface $bookMarkRepository;
+    private BookmarkCategoryInterface $bookmarkCategoryRepository;
+ 
+    public function __construct(BookMarkInterface $bookMarkRepository,BookmarkCategoryInterface $bookmarkCategoryRepository)
+    {
+        $this->bookMarkRepository = $bookMarkRepository;
+        $this->bookmarkCategoryRepository = $bookmarkCategoryRepository;
+    }
+
     /**
      * ブックマーク作成処理
      *
@@ -26,22 +37,11 @@ final class UpdateBookmarkUseCase
      * @param string $comment
      * @throws ValidationException
      */
-    public function handle(int $id, string $comment,string $category)
+    public function handle(int $id, string $comment,string $category_id):void
     {
-        $model = Bookmark::query()->findOrFail($id);
+        // ブックマークカテゴリーの存在チェック
+        $this->bookmarkCategoryRepository->findOrFail($category_id);
 
-        if ($model->can_not_delete_or_edit) {
-            throw ValidationException::withMessages([
-                'can_edit' => 'ブックマーク後24時間経過したものは編集できません'
-            ]);
-        }
-
-        if ($model->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $model->category_id = $category;
-        $model->comment = $comment;
-        $model->save();
+        $this->bookMarkRepository->updateBookMark($id,$comment,$category_id);
     }
 }

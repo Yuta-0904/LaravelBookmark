@@ -174,6 +174,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        // RepositoryServiceProviderを読み込み
+        App\Providers\RepositoryServiceProvider::class,
 
         // SEO
         Artesaos\SEOTools\Providers\SEOToolsServiceProvider::class,

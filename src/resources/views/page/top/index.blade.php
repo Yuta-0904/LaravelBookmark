@@ -15,9 +15,11 @@
                 PHP, Laravel, Ruby, Rails, MySQL, JavaScript, Go, Rust, React...
             </h2>
             <div class="navigation">
+                @guest
                 <a href="/register" class="navigation-button">
                     登録してブックマークする
                 </a>
+                @endguest
                 <a href="/bookmarks" class="navigation-button outline">
                     みんなのブックマークを見る
                 </a>

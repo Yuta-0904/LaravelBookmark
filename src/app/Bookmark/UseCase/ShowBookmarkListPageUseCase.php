@@ -5,10 +5,24 @@ namespace App\Bookmark\UseCase;
 use App\Models\Bookmark;
 use App\Models\BookmarkCategory;
 use App\Models\User;
+use App\Interfaces\BookmarkCategoryInterface;
+use App\Interfaces\BookMarkInterface;
+use Illuminate\Support\Facades\Auth;
 use Artesaos\SEOTools\Facades\SEOTools;
 
 final class ShowBookmarkListPageUseCase
 {
+
+    private BookmarkCategoryInterface $bookmarkCategoryRepository;
+    private BookMarkInterface $bookMarkRepository;
+ 
+    public function __construct(BookmarkCategoryInterface $bookmarkCategoryRepository,BookMarkInterface $bookMarkRepository)
+    {
+        $this->bookmarkCategoryRepository = $bookmarkCategoryRepository;
+        $this->bookMarkRepository = $bookMarkRepository;
+    }
+
+
     /**
      * SEO
      * title, description
@@ -31,9 +45,9 @@ final class ShowBookmarkListPageUseCase
          */
         SEOTools::setTitle('ブックマーク一覧');
 
-        $bookmarks = Bookmark::query()->with(['category', 'user'])->latest('id')->paginate(10);
+        $bookmarks = $this->bookMarkRepository->getBookMarkLists();
 
-        $top_categories = BookmarkCategory::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->orderBy('id')->take(10)->get();
+        $top_categories = $this->bookmarkCategoryRepository->getBookmarkCategory();
 
         // Descriptionの中に人気のカテゴリTOP5を含めるという要件
         SEOTools::setDescription("技術分野に特化したブックマーク一覧です。みんなが投稿した技術分野のブックマークが投稿順に並んでいます。{$top_categories->pluck('display_name')->slice(0, 5)->join('、')}など、気になる分野のブックマークに絞って調べることもできます");
@@ -41,6 +55,70 @@ final class ShowBookmarkListPageUseCase
         $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->orderBy('id')->take(10)->get();
 
         return [
+            'bookmarks' => $bookmarks,
+            'top_categories' => $top_categories,
+            'top_users' => $top_users
+        ];
+    }
+
+
+    /**
+     * SEO
+     * title, description
+     * titleは固定、descriptionは対象のブックマークのタイトルを含める
+     *
+     * ページ内に表示される内容
+     * ・対象ブックマークのタイトル
+     * ・対象ブックマークに紐づくカテゴリ
+     * ・カテゴリ一覧
+     * @return array
+     */
+    public function show($bookMark_id): array
+    {
+        $bookmark = $this->bookMarkRepository->findOrFail($bookMark_id);
+        SEOTools::setTitle('ブックマーク編集');
+        SEOTools::setDescription("{$bookmark->page_title}の編集画面です。");
+        if ($bookmark->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $master_categories = $this->bookmarkCategoryRepository->getBookmarkCategoryAll();
+
+        return [
+            'bookmark' => $bookmark,
+            'master_categories' => $master_categories,
+        ];
+    }
+
+
+     /**
+     * SEO
+     * title, description
+     * title、descriptionには対象のカテゴリー名を含める
+     *
+     * ページ内に表示される内容
+     * ・対象のカテゴリ名
+     * ・最も投稿件数の多いカテゴリ※トップ10件
+     * ・ブックマーク※ページごとに10件
+     * @return array
+     */
+    public function get($category_id): array
+    {
+        $category = $this->bookmarkCategoryRepository->findOrFail($category_id);
+        SEOTools::setTitle("{$category->display_name}のブックマーク一覧");
+        SEOTools::setDescription("{$category->display_name}に特化したブックマーク一覧です。みんなが投稿した{$category->display_name}のブックマークが投稿順に並んでいます。全部で{$category->bookmarks->count()}件のブックマークが投稿されています");
+
+
+        $bookmarks = $this->bookMarkRepository->getCategoryWithBookMarkLists($category_id);
+
+        // 自身のページのカテゴリを表示しても意味がないのでそれ以外のカテゴリで多い順に表示する
+        $top_categories = $this->bookmarkCategoryRepository->getBookmarkCategoryWithout($category_id);
+
+        $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->take(10)->get();
+
+        //カテゴリ一覧ページ表示
+        return [
+            'h1' => "{$category->display_name}のブックマーク一覧",
             'bookmarks' => $bookmarks,
             'top_categories' => $top_categories,
             'top_users' => $top_users

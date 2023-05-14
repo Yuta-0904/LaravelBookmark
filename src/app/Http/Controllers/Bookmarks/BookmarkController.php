@@ -58,68 +58,6 @@ class BookmarkController extends Controller
     }
 
     /**
-     * カテゴリ別ブックマーク一覧
-     *
-     * カテゴリが数字で無かった場合404
-     * カテゴリが存在しないIDが指定された場合404
-     *
-     * title, descriptionにはカテゴリ名とカテゴリのブックマーク投稿数を含める
-     *
-     * 表示する内容は普通の一覧と同様
-     * しかし、カテゴリに関しては現在のページのカテゴリを除いて表示する
-     *
-     * @param Request $request
-     * @return Application|Factory|View
-     */
-    public function listCategory(Request $request)
-    {
-        $category_id = $request->category_id;
-        if (!is_numeric($category_id)) {
-            abort(404);
-        }
-
-        $category = BookmarkCategory::query()->findOrFail($category_id);
-
-        SEOTools::setTitle("{$category->display_name}のブックマーク一覧");
-        SEOTools::setDescription("{$category->display_name}に特化したブックマーク一覧です。みんなが投稿した{$category->display_name}のブックマークが投稿順に並んでいます。全部で{$category->bookmarks->count()}件のブックマークが投稿されています");
-
-        $bookmarks = Bookmark::query()->with(['category', 'user'])->where('category_id', '=', $category_id)->latest('id')->paginate(10);
-
-        // 自身のページのカテゴリを表示しても意味がないのでそれ以外のカテゴリで多い順に表示する
-        $top_categories = BookmarkCategory::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->orderBy('id')->where('id', '<>', $category_id)->take(10)->get();
-
-        $top_users = User::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')->take(10)->get();
-
-        //カテゴリ一覧ページ表示
-        return view('page.bookmark_list.index', [
-            'h1' => "{$category->display_name}のブックマーク一覧",
-            'bookmarks' => $bookmarks,
-            'top_categories' => $top_categories,
-            'top_users' => $top_users
-        ]);
-    }
-
-    /**
-     * ブックマーク作成フォームの表示
-     * @return Application|Factory|View
-     */
-    public function showCreateForm()
-    {
-        if (Auth::id() === null) {
-            return redirect('/login');
-        }
-
-        SEOTools::setTitle('ブックマーク作成');
-
-        $master_categories = BookmarkCategory::query()->oldest('id')->get();
-
-        //ブックマーク作成ページ表示
-        return view('page.bookmark_create.index', [
-            'master_categories' => $master_categories,
-        ]);
-    }
-
-    /**
      * ブックマーク作成処理
      *
      * 未ログインの場合、処理を続行するわけにはいかないのでログインページへリダイレクト
@@ -144,45 +82,9 @@ class BookmarkController extends Controller
     }
 
     /**
-     * 編集画面の表示
-     * 未ログインであればログインページへ
-     * 存在しないブックマークの編集画面なら表示しない
-     * 本人のブックマークでなければ403で返す
-     *
-     * @param Request $request
-     * @param int $id
-     * @return Application|Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
-     */
-    public function showEditForm(Request $request, int $id)
-    {
-        if (Auth::guest()) {
-            // @note ここの処理はユーザープロフィールでも使われている
-            return redirect('/login');
-        }
-
-        SEOTools::setTitle('ブックマーク編集');
-
-        $bookmark = Bookmark::query()->findOrFail($id);
-        if ($bookmark->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $master_categories = BookmarkCategory::query()->withCount('bookmarks')->orderBy('bookmarks_count', 'desc')
-                            ->orderBy('id')->take(10)->get();
-
-        //ブックマーク編集ページ表示
-        return view('page.bookmark_edit.index', [
-            'user' => Auth::user(),
-            'bookmark' => $bookmark,
-            'master_categories' => $master_categories,
-        ]);
-    }
-
-    /**
      * ブックマーク更新
      * コメントとカテゴリのバリデーションは作成時のそれと合わせる
      * 本人以外は編集できない
-     * ブックマーク後24時間経過したものは編集できない仕様
      *
      * @param Request $request
      * @param int $id
@@ -203,7 +105,6 @@ class BookmarkController extends Controller
 
     /**
      * ブックマーク削除
-     * 公開後24時間経過したものは削除できない
      * 本人以外のブックマークは削除できない
      *
      * @param int $id
@@ -218,5 +119,60 @@ class BookmarkController extends Controller
 
         // 暫定的に成功時はプロフィールページへ
         return redirect('/user/profile', 302);
+    }
+
+    /**
+     * 編集画面の表示
+     * 未ログインであればログインページへ
+     * 存在しないブックマークの編集画面なら表示しない
+     * 本人のブックマークでなければ403で返す
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Application|Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
+     */
+    public function showEditForm(Request $request, int $id,ShowBookmarkListPageUseCase $useCase)
+    { 
+        //ブックマーク編集ページ表示
+        return view('page.bookmark_edit.index', [
+            'user' => Auth::user()
+        ] + $useCase->show($id));
+    }
+
+      /**
+     * カテゴリ別ブックマーク一覧
+     *
+     * カテゴリが数字で無かった場合404
+     * カテゴリが存在しないIDが指定された場合404
+     *
+     * title, descriptionにはカテゴリ名とカテゴリのブックマーク投稿数を含める
+     *
+     * 表示する内容は普通の一覧と同様
+     * しかし、カテゴリに関しては現在のページのカテゴリを除いて表示する
+     *
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function listCategory(Request $request,ShowBookmarkListPageUseCase $useCase)
+    {
+        $category_id = $request->category_id;
+        if (!is_numeric($category_id)) {
+            abort(404);
+        }
+
+        //カテゴリ一覧ページ表示
+        return view('page.bookmark_list.index', $useCase->get($category_id));
+    }
+
+    /**
+     * ブックマーク作成フォームの表示
+     * @return Application|Factory|View
+     */
+    public function showCreateForm(CreateBookmarkUseCase $useCase)
+    {
+        //ブックマーク作成ページ表示
+        return view('page.bookmark_create.index', [
+            'master_categories' => $useCase->show(),
+        ]);
     }
 }

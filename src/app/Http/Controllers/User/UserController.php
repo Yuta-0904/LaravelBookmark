@@ -19,10 +19,6 @@ class UserController extends \App\Http\Controllers\Controller
      */
     public function showProfile()
     {
-        if (Auth::guest()) {
-            return redirect('/login');
-        }
-
         /** @var User $user */
         $user = Auth::user();
 

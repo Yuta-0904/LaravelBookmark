@@ -3,15 +3,23 @@
 namespace App\Bookmark\UseCase;
 
 use App\Models\Bookmark;
-use Dusterio\LinkPreview\Client;
-use Illuminate\Support\Facades\Auth;
+use App\Interfaces\BookMarkInterface;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+
 final class DeleteBookmarkUseCase
 {
+
+    private BookMarkInterface $bookMarkRepository;
+ 
+    public function __construct(BookMarkInterface $bookMarkRepository)
+    {
+        $this->bookMarkRepository = $bookMarkRepository;
+    }
+
     /**
-     * ブックマーク作成処理
+     * ブックマーク削除処理
      *
      * 未ログインの場合、処理を続行するわけにはいかないのでログインページへリダイレクト
      *
@@ -26,20 +34,8 @@ final class DeleteBookmarkUseCase
      * @param string $comment
      * @throws ValidationException
      */
-    public function handle(int $id)
+    public function handle(int $id):void
     {
-        $model = Bookmark::query()->findOrFail($id);
-
-        if ($model->can_not_delete_or_edit) {
-            throw ValidationException::withMessages([
-                'can_delete' => 'ブックマーク後24時間経過したものは削除できません'
-            ]);
-        }
-
-        if ($model->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $model->delete();
+        $this->bookMarkRepository->deleteBookMark($id);
     }
 }

@@ -28,10 +28,10 @@
         <form action="/bookmarks" method="post">
             @csrf
             <div class="form-item">
-                <input name="url" type="text" id="url" placeholder="ブックマークする記事のURL">
+                <input name="url" type="text" id="url" placeholder="ブックマークする記事のURL" value="{{old('url')}}">
             </div>
             <div class="form-item">
-                <textarea name="comment" id="comment" cols="30" rows="5" placeholder="ブックマークコメント"></textarea>
+                <textarea name="comment" id="comment" cols="30" rows="5" placeholder="ブックマークコメント">{{old('comment')}}</textarea>
             </div>
             <div class="form-item">
                 <div class="select-container">
