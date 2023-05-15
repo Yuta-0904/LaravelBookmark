@@ -33,7 +33,7 @@ class DeleteBookmarkUseCaseTest extends TestCase
         $comment = 'テスト用のコメント';
 
         // ログインしないと失敗するので強制ログイン
-        $testUser = User::query()->find(1);
+        $testUser = User::query()->first();
         Auth::loginUsingId($testUser->id);
 
         // テストデータの作成

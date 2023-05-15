@@ -28,8 +28,8 @@ class UpdateBookmarkTest extends TestCase
     {
         $category = BookmarkCategory::query()->first()->id;
         $comment = '更新テスト用のコメント';
-        $user = User::query()->find(1);
-        Auth::loginUsingId($user->id);
+        $testUser = User::query()->first();
+        Auth::loginUsingId($testUser->id);
 
         $response = $this->put('/bookmarks/1', [
             'comment' => $comment,
